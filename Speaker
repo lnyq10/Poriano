@@ -10,16 +10,7 @@ unsigned char Button8[7]={0X7e,0X04,0X41,0X00,0X08,0XEF};
 unsigned char Button9[7]={0X7e,0X04,0X41,0X00,0X09,0XEF};  
 unsigned char Button10[7]={0X7e,0X04,0X41,0X00,0X0A,0XEF};  //Play the tenth sound.
 unsigned char *pButton[10]={Button1,Button2,Button3,Button4,Button5,Button6,Button7,Button8,Button9,Button10};
-/*pButton[0]=Button1;
-pButton[1]=Button2;
-pButton[2]=Button3;
-pButton[3]=Button4;
-pButton[4]=Button5;
-pButton[5]=Button6;
-pButton[6]=Button7;
-pButton[7]=Button8;
-pButton[8]=Button9;
-pButton[9]=Button10;*/
+
 
 int touchPin[10]={0,1,2,3,4,5,6,7,8,9};
 int touchReading[10]={0,0,0,0,0,0,0,0,0,0};
@@ -35,7 +26,7 @@ void setup() {
 }
 
 void loop() {
-for(int i=0;i<=2;i++)
+/*for(int i=0;i<=2;i++)
 {
   if(timer[i]>=20)
   {
@@ -45,7 +36,7 @@ else {Serial2.write(StopPlay,4);}
 pre[i]=0;
 timer[i]=0;
     }
-  }
+  }*/
 
   for(int i=0;i<=2;i++)
   {
@@ -115,13 +106,7 @@ else {Serial2.write(pButton[pre[i]-1],6);}
   }// sound new key and keep sounding keys that have been functioning..
 }
   //For test
- /*Serial1.write(Button10,6);
-  Serial2.write(Button2,6);
-  
-  delay(500);  
-  Serial1.write(StopPlay,4);
-  Serial2.write(StopPlay,4);
-*/
+
 
 
 
