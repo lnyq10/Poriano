@@ -39,8 +39,8 @@ Speaker sp2 = { false,0,2};
 Speaker sp3 = { false,0,3};
 
 int* Sensor();//this function should return int array with 10 elements which are 0 or 1
-int isStillPress(Speaker sp, int keynumber[3]);
-void findnumber(int* sensor, int keynumber[3]);
+int isStillPress(Speaker sp, int* keyNumber);
+int* findNumber(int* sensor);
 void Refresh(int* sensor);
 void playSound(void);
 int check_loop=0;
@@ -75,17 +75,17 @@ void playSound(void){
   
 }
 
-int isStillPress(Speaker sp, int keynumber[3])//judge whether the button of the speaker is still being pressed.If so, sp_button stays the same.If not, let sp_button=0.
+int isStillPress(Speaker sp, int* keyNumber)//judge whether the button of the speaker is still being pressed.If so, sp_button stays the same.If not, let sp_button=0.
 {
   
   for (int i = 0; i < 3; i++)
   {
     
-    if (sp.button == keynumber[i])
+    if (sp.button == *(keyNumber+i))
     {
       int temp;
-      temp = keynumber[i];
-      keynumber[i] = 0;
+      temp = *(keyNumber+i);
+      *(keyNumber+i) = 0;
     
       return temp;
     }
@@ -95,20 +95,19 @@ int isStillPress(Speaker sp, int keynumber[3])//judge whether the button of the 
 
 void Refresh(int* sensor)//This function refresh the arrangement of speakers for buttons..
 {
-  int keynumber[3] = { 0 };
-  findnumber(sensor, keynumber);
-  if (sp1.button!=0) { sp1.button = isStillPress(sp1, keynumber); } 
-  if (sp2.button!=0) { sp2.button = isStillPress(sp2, keynumber); } 
-  if (sp3.button!=0) { sp3.button = isStillPress(sp3, keynumber); } 
-  for (int i = 0; i <= 2; i++)
+  int* keyNumber = findNumber(sensor);
+  if (sp1.button!=0) { sp1.button = isStillPress(sp1, keyNumber); } 
+  if (sp2.button!=0) { sp2.button = isStillPress(sp2, keyNumber); } 
+  if (sp3.button!=0) { sp3.button = isStillPress(sp3, keyNumber); } 
+  for (int i = 0; i < 3; i++)
   {
     
-    if (keynumber[i] != 0)
+    if (keyNumber[i] != 0)
     {
       
-      if (sp1.button==0) { sp1.button = keynumber[i];  }
-      else if (sp2.button==0) { sp2.button = keynumber[i];  }
-      else if (sp3.button==0) { sp3.button = keynumber[i];  }
+      if (sp1.button==0) { sp1.button = *(keyNumber+i);  }
+      else if (sp2.button==0) { sp2.button = *(keyNumber+i);  }
+      else if (sp3.button==0) { sp3.button = *(keyNumber+i);  }
     }
   }
 
@@ -119,15 +118,17 @@ void Refresh(int* sensor)//This function refresh the arrangement of speakers for
   else { sp2.isOn = false; }
   if (sp3.button!= 0) {  sp3.isOn = true; }
   else { sp3.isOn = false; }
+  free(keyNumber);
 }
 
-void findnumber(int* sensor, int* keynumber)//pick out keys being pressed.
-{
+int* findNumber(int* sensor){//Process the sensor pointer and returns a int array[3] describing the buttons being pressed
+  int* keyNumber=(int*)malloc(3*sizeof(int));
   int j = 0;
   for (int i = 0; i < numOfKey; i++)
   {
-    if ((sensor[i] != 0) && (j < 3)) { *(keynumber+j) = i + 1; j++; }
+    if ((sensor[i] != 0) && (j < 3)) { *(keyNumber+j) = i + 1; j++; }
   }
+  return keyNumber;
 }
 
 int* Sensor(){
