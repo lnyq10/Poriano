@@ -11,18 +11,6 @@ unsigned char Button9[7] = { 0X7e,0X04,0X41,0X00,0X09,0XEF };
 unsigned char Button10[7] = { 0X7e,0X04,0X41,0X00,0X0A,0XEF };  //Play the tenth sound.
 unsigned char *pButton[10]={Button1,Button2,Button3,Button4,Button5,Button6,Button7,Button8,Button9,Button10};
 
-const int numOfKey=3;
-typedef struct _speaker { bool isOn; int button; int tag; }Speaker;
-Speaker sp1 = { false,0,1};
-Speaker sp2 = { false,0,2};
-Speaker sp3 = { false,0,3};
-
-
-int* Sensor();//this function should return int array with 10 elements which are 0 or 1
-int isStillPress(Speaker sp, int keynumber[3]);
-void findnumber(int* sensor, int keynumber[3]);
-void Refresh(int* sensor);
-
 int button[3]={0};
 void setup() {
   pinMode(51,INPUT);
@@ -38,12 +26,23 @@ void setup() {
   delay(1000);
 }
 
+const int numOfKey=3;
+typedef struct _speaker { bool isOn; int button; int tag; }Speaker;
+Speaker sp1 = { false,0,1};
+Speaker sp2 = { false,0,2};
+Speaker sp3 = { false,0,3};
+
+int* Sensor();//this function should return int array with 10 elements which are 0 or 1
+int isStillPress(Speaker sp, int keynumber[3]);
+void findnumber(int* sensor, int keynumber[3]);
+void Refresh(int* sensor);
+void playSound(void);
 
 void loop() {
     int* sensor = Sensor();
     Refresh(sensor);
-    
     free(sensor);
+    playSound();
     delay(50);
 }
 
@@ -99,6 +98,18 @@ void findnumber(int* sensor, int* keynumber)//pick out keys being pressed.
   for (int i = 0; i < numOfKey; i++)
   {
     if ((sensor[i] != 0) && (j <= 2)) { *(keynumber+j) = i + 1; j++; }
+  }
+}
+
+void playSound(void){
+  if(sp1.isOn){
+    Serial1.write(pButton[sp1.button],6);
+  }
+  if(sp2.isOn){
+    Serial1.write(pButton[sp2.button],6);
+  }
+  if(sp3.isOn){
+    Serial1.write(pButton[sp3.button],6);
   }
 }
 
