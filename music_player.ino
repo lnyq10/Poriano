@@ -1,4 +1,6 @@
-unsigned char StopPlay[7] = { 0X7E ,0X02, 0X02 ,0XEF };  //stop the speaker from playing sounds
+//#define TEST
+unsigned char KeepWorking[7]={ 0X7E ,0X02, 0X09 ,0XEF };
+unsigned char StopPlay[7] = { 0X7E ,0X02, 0X0E ,0XEF };  //stop the speaker from playing sounds
 unsigned char Button1[7] = { 0X7e,0X04,0X41,0X00,0X01,0XEF };  //Play the first sound.
 unsigned char Button2[7] = { 0X7e,0X04,0X41,0X00,0X02,0XEF };
 unsigned char Button3[7] = { 0X7e,0X04,0X41,0X00,0X03,0XEF };
@@ -11,14 +13,18 @@ unsigned char Button9[7] = { 0X7e,0X04,0X41,0X00,0X09,0XEF };
 unsigned char Button10[7] = { 0X7e,0X04,0X41,0X00,0X0A,0XEF };  //Play the tenth sound.
 unsigned char *pButton[10]={Button1,Button2,Button3,Button4,Button5,Button6,Button7,Button8,Button9,Button10};
 
-int button[3]={0};
+int button[5]={0};
 void setup() {
   pinMode(51,INPUT);
   pinMode(53,INPUT);
   pinMode(49,INPUT);
-  button[0]=digitalRead(49);
-  button[1]=digitalRead(51);
-  button[2]=digitalRead(53);
+  pinMode(47,INPUT);
+  pinMode(45,INPUT);
+  button[0]=digitalRead(45);
+  button[1]=digitalRead(47);
+  button[2]=digitalRead(49);
+  button[3]=digitalRead(51);
+  button[4]=digitalRead(53);
   Serial.begin(9600);
   Serial1.begin(9600);
   Serial2.begin(9600);
@@ -26,7 +32,7 @@ void setup() {
   delay(1000);
 }
 
-const int numOfKey=3;
+const int numOfKey=5;
 typedef struct _speaker { bool isOn; int button; int tag; }Speaker;
 Speaker sp1 = { false,0,1};
 Speaker sp2 = { false,0,2};
@@ -37,13 +43,36 @@ int isStillPress(Speaker sp, int keynumber[3]);
 void findnumber(int* sensor, int keynumber[3]);
 void Refresh(int* sensor);
 void playSound(void);
+int check_loop=0;
 
 void loop() {
     int* sensor = Sensor();
     Refresh(sensor);
     free(sensor);
+        
     playSound();
-    delay(50);
+    
+    check_loop++;   
+    delay(100);
+    #ifdef TEST
+    if((check_loop+1)/3==(int) (check_loop+1)/3){}
+    #endif
+}
+
+void playSound(void){
+      if(sp1.isOn){
+          //Serial1.write(StopPlay,4);
+          //Serial1.write(KeepWorking,4);
+          Serial1.write(pButton[sp1.button],6);
+      }
+      if(sp2.isOn){
+          Serial2.write(pButton[sp2.button],6);
+      }
+      if(sp3.isOn){
+          Serial3.write(pButton[sp3.button],6);
+      }
+ 
+  
 }
 
 int isStillPress(Speaker sp, int keynumber[3])//judge whether the button of the speaker is still being pressed.If so, sp_button stays the same.If not, let sp_button=0.
@@ -66,7 +95,7 @@ int isStillPress(Speaker sp, int keynumber[3])//judge whether the button of the 
 
 void Refresh(int* sensor)//This function refresh the arrangement of speakers for buttons..
 {
-  int keynumber[3] = { 0,0,0 };
+  int keynumber[3] = { 0 };
   findnumber(sensor, keynumber);
   if (sp1.button!=0) { sp1.button = isStillPress(sp1, keynumber); } 
   if (sp2.button!=0) { sp2.button = isStillPress(sp2, keynumber); } 
@@ -97,28 +126,16 @@ void findnumber(int* sensor, int* keynumber)//pick out keys being pressed.
   int j = 0;
   for (int i = 0; i < numOfKey; i++)
   {
-    if ((sensor[i] != 0) && (j <= 2)) { *(keynumber+j) = i + 1; j++; }
-  }
-}
-
-void playSound(void){
-  if(sp1.isOn){
-    Serial1.write(pButton[sp1.button],6);
-  }
-  if(sp2.isOn){
-    Serial1.write(pButton[sp2.button],6);
-  }
-  if(sp3.isOn){
-    Serial1.write(pButton[sp3.button],6);
+    if ((sensor[i] != 0) && (j < 3)) { *(keynumber+j) = i + 1; j++; }
   }
 }
 
 int* Sensor(){
   int* sensor=(int*) malloc(numOfKey*sizeof(int));
-  int button_new[3]={0};
+  int button_new[numOfKey]={0};
   for(int i=0;i<numOfKey;i++){
     *(sensor+i)=0;
-    button_new[i]=digitalRead(49+2*i);
+    button_new[i]=digitalRead(45+2*i);
   }
  
   for(int i=0;i<numOfKey;i++){
