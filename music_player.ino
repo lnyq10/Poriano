@@ -33,10 +33,10 @@ void setup() {
 }
 
 const int numOfKey=5;
-typedef struct _speaker { bool isOn; int button; int tag; }Speaker;
-Speaker sp1 = { false,0,1};
-Speaker sp2 = { false,0,2};
-Speaker sp3 = { false,0,3};
+typedef struct _speaker { bool isOn; int button; int duration l;int tag;}Speaker;
+Speaker sp1 = { false,0,0,1};
+Speaker sp2 = { false,0,0,2};
+Speaker sp3 = { false,0,0,3};
 
 int* Sensor();//this function should return int array with 10 elements which are 0 or 1
 int isStillPress(Speaker sp, int* keyNumber);
@@ -44,16 +44,17 @@ int* findNumber(int* sensor);
 void Refresh(int* sensor);
 void playSound(void);
 int check_loop=0;
-
+int durationCheck=500;
 void loop() {
     int* sensor = Sensor();
     Refresh(sensor);
+  timeLapse();
     free(sensor);
         
     playSound();
     
     check_loop++;   
-    delay(100);
+    delay(50);
     #ifdef TEST
     if((check_loop+1)/3==(int) (check_loop+1)/3){}
     #endif
@@ -93,12 +94,31 @@ int isStillPress(Speaker sp, int* keyNumber)//judge whether the button of the sp
   return 0;
 }
 
+
+void timeLapse()
+{
+    if (sp1.button!=0) { sp1.duration = sp1.duration+50; } 
+  if (sp2.button!=0) { sp2.duration = sp1.duration+50; } 
+  if (sp3.button!=0) { sp3.duration = sp1.duration+50; } 
+}
 void Refresh(int* sensor)//This function refresh the arrangement of speakers for buttons..
 {
   int* keyNumber = findNumber(sensor);
-  if (sp1.button!=0) { sp1.button = isStillPress(sp1, keyNumber); } 
-  if (sp2.button!=0) { sp2.button = isStillPress(sp2, keyNumber); } 
-  if (sp3.button!=0) { sp3.button = isStillPress(sp3, keyNumber); } 
+  if ((sp1.button!=0)&&(sp1.duration>durationCheck)) 
+  { 
+    sp1.button = isStillPress(sp1, keyNumber);
+    if(sp1.button==0){sp1.duration=0;}
+  }
+  if ((sp2.button!=0)&&(sp2.duration>durationCheck)) 
+  { 
+    sp2.button = isStillPress(sp2, keyNumber);
+     if(sp2.button==0){sp2.duration=0;}
+  } 
+  if ((sp3.button!=0)&&(sp3.duration>durationCheck)) 
+  { 
+    sp3.button = isStillPress(sp3, keyNumber);
+     if(sp3.button==0){sp3.duration=0;}
+  } 
   for (int i = 0; i < 3; i++)
   {
     
@@ -113,11 +133,11 @@ void Refresh(int* sensor)//This function refresh the arrangement of speakers for
 
 
   if (sp1.button != 0) {sp1.isOn = true; }
-  else { sp1.isOn = false; }
+  else { sp1.isOn = false; sp1.duration=0;}
   if (sp2.button != 0) {  sp2.isOn = true; }
-  else { sp2.isOn = false; }
+  else { sp2.isOn = false;sp2.duration=0; }
   if (sp3.button!= 0) {  sp3.isOn = true; }
-  else { sp3.isOn = false; }
+  else { sp3.isOn = false; sp3.duration=0;}
   free(keyNumber);
 }
 
